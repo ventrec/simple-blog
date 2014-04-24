@@ -1,4 +1,4 @@
-@extends('layout')
+@extends('layouts.layout')
 
 @section('content')
 <div id="content">
@@ -32,5 +32,5 @@
 @stop
 
 @section('sidebar')
-    @include('sidebar')
+    @include('layouts.sidebar')
 @stop

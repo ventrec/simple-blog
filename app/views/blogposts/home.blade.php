@@ -1,4 +1,4 @@
-@extends('layout')
+@extends('layouts.layout')
 
 @section('content')
     @foreach($blogposts as $post)
@@ -12,7 +12,7 @@
                     <a href="{{ action('HomeController@getDelete', $post->id) }}">Delete</a> - <a href="{{ action('HomeController@getEdit', $post->id) }}">Edit</a>
                 </p>
             @endif
-            {{ $post->body }}
+            {{ $post->text }}
         </div>
     @endforeach
 
@@ -20,5 +20,5 @@
 @stop
 
 @section('sidebar')
-    @include('sidebar')
+    @include('layouts.sidebar')
 @stop

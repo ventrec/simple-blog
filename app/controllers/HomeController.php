@@ -22,7 +22,7 @@ class HomeController extends BaseController {
      */
     public function getIndex() {
         $blogPosts = Blogpost::orderBy('id', 'desc')->paginate(10);
-        return View::make('home')->with('blogposts', $blogPosts);
+        return View::make('blogposts.home')->with('blogposts', $blogPosts);
     }
 
     /**
@@ -34,7 +34,7 @@ class HomeController extends BaseController {
     public function getPost($id) {
         $blogPost = Blogpost::find($id);
         $blogPosts = Blogpost::orderBy('id', 'desc')->limit(10)->get();
-        return View::make('blogpost')->with(array('blogpost' => $blogPost, 'blogposts' => $blogPosts));
+        return View::make('blogposts.blogpost')->with(array('blogpost' => $blogPost, 'blogposts' => $blogPosts));
     }
 
     /**
@@ -45,7 +45,7 @@ class HomeController extends BaseController {
     public function getNew() {
         if(Auth::check()) {
             $blogPosts = Blogpost::orderBy('id', 'desc')->limit(10)->get();
-            return View::make('new')->with('blogposts', $blogPosts);
+            return View::make('blogposts.new')->with('blogposts', $blogPosts);
         } else {
             return Redirect::to('/');
         }
@@ -68,7 +68,7 @@ class HomeController extends BaseController {
 
             return Redirect::to('/');
         } else {
-            return Redirect::to('new')
+            return Redirect::to('blogposts.new')
                 ->with('messages', $validator->messages()->all())
                 ->withInput();
         }
@@ -98,7 +98,7 @@ class HomeController extends BaseController {
         if(Auth::check()) {
             $blogPosts = Blogpost::orderBy('id', 'desc')->limit(10)->get();
             $blogPost = Blogpost::find($id);
-            return View::make('edit')->with(array('blogposts' => $blogPosts, 'blogpost' => $blogPost));
+            return View::make('blogposts.edit')->with(array('blogposts' => $blogPosts, 'blogpost' => $blogPost));
         } else {
             Return Redirect::to('/');
         }
@@ -121,7 +121,7 @@ class HomeController extends BaseController {
 
             Return Redirect::to('/');
         } else {
-            return Redirect::to('edit')
+            return Redirect::to('blogposts.edit')
                 ->with('messages', $validator->messages()->all())
                 ->withInput();
         }

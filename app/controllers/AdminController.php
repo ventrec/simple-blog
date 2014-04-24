@@ -22,7 +22,7 @@ class AdminController extends BaseController {
     public function getLogin() {
         if(!Auth::check()) {
             $blogPosts = Blogpost::orderBy('id', 'desc')->limit(10)->get();
-            return View::make('login')->with('blogposts', $blogPosts);
+            return View::make('admin.login')->with('blogposts', $blogPosts);
         } else {
             return Redirect::to('/');
         }

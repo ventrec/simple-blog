@@ -11,7 +11,8 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
      * @return int
      */
     public function retrievePostCount() {
-        return DB::table('blogpost')->where('user_id', $this->id)->count();
+        // return DB::table('blogposts')->where('user_id', $this->id)->count();
+        return $this->hasMany('Blogpost');
     }
 
     /**

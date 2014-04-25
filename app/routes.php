@@ -12,17 +12,67 @@
 */
 
 
-
-Route::get('users', function()
+Route::group(array('prefix' => '/'), function()
 {
-    $users = User::all();
+	Route::get('/', 'HomeController@index');
+	Route::get('post/{year}/{month}/{day}/{slug}', 'HomeController@show');
 
-    return View::make('users')->with('users', $users);
+	Route::group(array('prefix' => 'admin'), function()
+	{
+		Route::get('login', array(
+			'as' => 'admin.login',
+			'uses' => 'AdminController@login'
+		));
+		Route::patch('check', array(
+			'as' => 'admin.check',
+			'uses' => 'AdminController@check'
+		));
+	});
 });
 
-Route::get('password', function() {
-    return Hash::make('test');
+Route::group(array('prefix' => '/', 'before' => 'auth'), function()
+{
+	Route::get('new', array(
+		'as' => 'home.new',
+		'uses' => 'HomeController@create'
+	));
+
+	Route::patch('verify', array(
+		'as' => 'home.store',
+		'uses' => 'HomeController@store'
+	));
+
+	Route::post('verify', 'HomeController@postVerify');
+	
+	Route::get('post/{slug}/delete', array(
+		'as' => 'home.destroy',
+		'uses' => 'HomeController@destroy'
+	));
+
+	Route::get('post/{slug}/edit', array(
+		'as' => 'home.show',
+		'uses' => 'HomeController@edit'
+	));
+
+	Route::patch('post/{slug}/edit', array(
+		'as' => 'home.update',
+		'uses' => 'HomeController@update'
+	));
+
+	Route::group(array('prefix' => 'admin'), function()
+	{
+		Route::get('logout', array(
+			'as' => 'admin.logout',
+			'uses' => 'AdminController@logout'
+		));
+	});
 });
 
-Route::controller('admin', 'AdminController');
-Route::controller('/', 'HomeController');
+Route::group(array('prefix' => 'users'), function()
+{
+	Route::get('list', function()
+	{
+		$users = User::all();
+		dd($users);
+	});
+});

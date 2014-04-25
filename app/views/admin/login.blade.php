@@ -3,7 +3,7 @@
 @section('content')
 <div id="content">
     <h1 class="blog-post-title">Log in</h1>
-    {{ Form::open(array('url' => 'admin/verify', 'class' => 'form-horizontal', 'role' => 'form')) }}
+    {{ Form::open(array('route' => array('admin.check'), 'class' => 'form-horizontal', 'role' => 'form', 'method' => 'patch')) }}
     @if(Session::has('err_msg'))
         <p class="alert-danger">{{ Session::get('err_msg') }}</p>
     @endif

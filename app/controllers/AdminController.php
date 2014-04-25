@@ -7,7 +7,7 @@ class AdminController extends BaseController {
      *
      * @return mixed
      */
-    public function getIndex() {
+    public function index() {
         if(!Auth::check())
             return Redirect::to('admin/login');
         else
@@ -19,7 +19,7 @@ class AdminController extends BaseController {
      *
      * @return mixed
      */
-    public function getLogin() {
+    public function login() {
         if(!Auth::check()) {
             $blogPosts = Blogpost::orderBy('id', 'desc')->limit(10)->get();
             return View::make('admin.login')->with('blogposts', $blogPosts);
@@ -34,7 +34,7 @@ class AdminController extends BaseController {
      *
      * @return mixed
      */
-    public function getLogout() {
+    public function logout() {
         if(Auth::check()) {
             Auth::logout();
         }
@@ -46,7 +46,7 @@ class AdminController extends BaseController {
      *
      * @return mixed
      */
-    public function postVerify() {
+    public function check() {
         if(Auth::attempt(array('username' => Input::get('username'), 'password' => Input::get('password')))) {
             return Redirect::to('/');
         } else {

@@ -3,7 +3,7 @@
 @section('content')
 <div id="content">
     <h1 class="blog-post-title">Create new post</h1>
-    {{ Form::open(array('url' => 'edit/' . $blogpost->id, 'class' => 'form-horizontal', 'role' => 'form')) }}
+    {{ Form::open(array('route' => array('home.update', $blogpost->id), 'class' => 'form-horizontal', 'role' => 'form', 'method' => 'patch')) }}
     @if(Session::has('messages'))
         @foreach(Session::get('messages') as $message)
             {{ $message }}
@@ -16,9 +16,9 @@
         </div>
     </div>
     <div class="form-group">
-        <label for="InputBody" class="col-sm-2 control-label">Body</label>
+        <label for="InputText" class="col-sm-2 control-label">Body</label>
         <div class="col-sm-10">
-            {{ Form::textarea('body', $blogpost->body, array('class' => 'form-control', 'id' => 'InputBody', 'placeholder' => 'Body')) }}
+            {{ Form::textarea('text', $blogpost->text, array('class' => 'form-control', 'id' => 'InputText', 'placeholder' => 'Body')) }}
             <span class="help-block">Remember to use HTML-tags while writing the body. Paragraph-tags (&#60;p&#62;paragraph&#60;/p&#62;) are required.</span>
         </div>
     </div>

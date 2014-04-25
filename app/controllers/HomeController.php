@@ -20,8 +20,10 @@ class HomeController extends BaseController {
      *
      * @return mixed
      */
-    public function getIndex() {
+    public function index() 
+    {
         $blogPosts = Blogpost::orderBy('id', 'desc')->paginate(10);
+
         return View::make('blogposts.home')->with('blogposts', $blogPosts);
     }
 
@@ -31,10 +33,27 @@ class HomeController extends BaseController {
      * @param $id Id of the blog post
      * @return mixed
      */
-    public function getPost($id) {
-        $blogPost = Blogpost::find($id);
+    public function show($year, $month, $day, $slug) 
+    {     
+        try {
+            //AND DATE_FORMAT(created_at, \'%Y.%m.%d\') = ?
+            $format = $year . '.' . $month . '.' . $day;
+            $blogPost = Blogpost::whereRaw('slug = ? AND DATE_FORMAT(created_at, \'%Y.%m.%d\') = ?', array($slug, $format))->firstOrFail();
+            // $blogPost = Blogpost::where('slug', '=', $slug)->firstOrFail();
+
+            if ( ($year !== $blogPost->created_at->format('Y')) OR ($month !== $blogPost->created_at->format('m')) OR ($day !== $blogPost->created_at->format('d')) )
+            {
+                return Redirect::to('/');
+            }
+
+        } catch (Exception $e) {
+            return Redirect::to('/');
+        }
+
         $blogPosts = Blogpost::orderBy('id', 'desc')->limit(10)->get();
-        return View::make('blogposts.blogpost')->with(array('blogpost' => $blogPost, 'blogposts' => $blogPosts));
+        $comments = $blogPost->comments()->get();
+
+        return View::make('blogposts.blogpost')->with(array('blogpost' => $blogPost, 'blogposts' => $blogPosts, 'comments' => $comments));
     }
 
     /**
@@ -42,13 +61,11 @@ class HomeController extends BaseController {
      *
      * @return mixed
      */
-    public function getNew() {
-        if(Auth::check()) {
-            $blogPosts = Blogpost::orderBy('id', 'desc')->limit(10)->get();
-            return View::make('blogposts.new')->with('blogposts', $blogPosts);
-        } else {
-            return Redirect::to('/');
-        }
+    public function create() 
+    {
+        $blogPosts = Blogpost::orderBy('id', 'desc')->limit(10)->get();
+
+        return View::make('blogposts.new')->with('blogposts', $blogPosts);
     }
 
     /**
@@ -56,19 +73,24 @@ class HomeController extends BaseController {
      *
      * @return mixed
      */
-    public function postVerify() {
+    public function store() 
+    {
         $validator = Validator::make(Input::all(), Blogpost::$rules);
 
-        if($validator->passes()) {
+        if($validator->passes()) 
+        {
             $blogpost = new Blogpost;
             $blogpost->title = Input::get('title');
-            $blogpost->body = Input::get('body');
-            $blogpost->author = Auth::user()->id;
+            $blogpost->slug = Str::slug(Input::get('title'), '_');
+            $blogpost->text = Input::get('text');
+            $blogpost->user_id = Auth::user()->id;
             $blogpost->save();
 
             return Redirect::to('/');
-        } else {
-            return Redirect::to('blogposts.new')
+        } 
+        else 
+        {
+            return Redirect::to('/new')
                 ->with('messages', $validator->messages()->all())
                 ->withInput();
         }
@@ -80,10 +102,9 @@ class HomeController extends BaseController {
      * @param $id Id related to the blog post
      * @return mixed
      */
-    public function getDelete($id) {
-        if(Auth::check()) {
-            Blogpost::destroy($id);
-        }
+    public function destroy($slug) 
+    {
+        if(Auth::check()) Blogpost::destroy($slug);
 
         return Redirect::to('/');
     }
@@ -94,37 +115,46 @@ class HomeController extends BaseController {
      * @param $id Id related to the blog post
      * @return mixed
      */
-    public function getEdit($id) {
-        if(Auth::check()) {
+    public function edit($slug) 
+    {
+        if(Auth::check()) 
+        {
             $blogPosts = Blogpost::orderBy('id', 'desc')->limit(10)->get();
             $blogPost = Blogpost::find($id);
+
             return View::make('blogposts.edit')->with(array('blogposts' => $blogPosts, 'blogpost' => $blogPost));
-        } else {
-            Return Redirect::to('/');
+        } 
+        else 
+        {
+            return Redirect::to('/');
         }
     }
 
     /**
      * Verifies data and updates the blog post if validation is successful
-     *
+     * 
      * @param $id Id related to the blog post
      * @return mixed
      */
-    public function postEdit($id) {
+    public function update($id) 
+    {
         $validator = Validator::make(Input::all(), Blogpost::$rules);
 
-        if($validator->passes()) {
+        if($validator->passes()) 
+        {
             $blogpost = Blogpost::find($id);
             $blogpost->title = Input::get('title');
-            $blogpost->body = Input::get('body');
+            $blogpost->slug = Str::slug(Input::get('title'), '_');
+            $blogpost->text = Input::get('text');
             $blogpost->save();
 
-            Return Redirect::to('/');
-        } else {
+            return Redirect::to('/');
+        } 
+        else 
+        {
             return Redirect::to('blogposts.edit')
                 ->with('messages', $validator->messages()->all())
                 ->withInput();
         }
     }
-
 }

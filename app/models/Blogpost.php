@@ -11,12 +11,30 @@ class Blogpost extends Eloquent {
         'text' => 'required'
     );
 
+    // // AND DATE_FORMAT(created_at, \'%Y.%m.%d\') = ?
+    //         $format = $year . '.' . $month . '.' . $day;
+    //         $blogPost = blogpost::where('slug', '=', $slug)->findOrFail();
+    //         // $blogPost = Blogpost::whereRaw('slug = ?', array($slug))->findOrFail();
+
+    protected $appends = array('link');
+
     /**
      * Retrieves the user object associated with the post
      *
      * @return mixed
      */
-    public function user() {
+    public function user() 
+    {
         return $this->belongsTo('User');
+    }
+
+    public function comments()
+    {
+        return $this->hasMany('Comment');
+    }
+
+    public function getLinkAttribute() 
+    {
+        return date('Y/m/d', strtotime($this->attributes['created_at'])) .'/'. $this->attributes['slug'];
     }
 }

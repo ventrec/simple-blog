@@ -11,8 +11,11 @@ class BlogpostsTableSeeder extends Seeder {
 
 		foreach(range(1, 20) as $index)
 		{
+			$title = $faker->sentence;
+
 			Blogpost::create([
-				'title' => $faker->sentence,
+				'title' => $title,
+				'slug' => Str::slug($title, '_'),
 				'text' => $faker->text,
 				'user_id' => rand(1,10)
 			]);

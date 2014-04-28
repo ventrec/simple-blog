@@ -2,11 +2,11 @@
     <h4>Latest blog items</h4>
     <ul>
         @if(count($blogposts) > 0)
-        @foreach($blogposts as $post)
-        <li><a href="{{ action('HomeController@show', $post->id) }}">{{ $post->title }}</a></li>
-        @endforeach
+            @foreach($blogposts as $post)
+                <li><a href="{{ action('HomeController@show', $post->link) }}">{{ $post->title }}</a></li>
+            @endforeach
         @else
-        <li>No blog items yet.</li>
+            <li>No blog items yet.</li>
         @endif
     </ul>
 </div>

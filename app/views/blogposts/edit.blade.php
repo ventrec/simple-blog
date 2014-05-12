@@ -3,10 +3,15 @@
 @section('content')
 <div id="content">
     <h1 class="blog-post-title">Create new post</h1>
-    {{ Form::open(array('route' => array('home.update', $blogpost->id), 'class' => 'form-horizontal', 'role' => 'form', 'method' => 'patch')) }}
+    {{ Form::open([
+        'route'     => ['home.update', $blogpost->year, $blogpost->month, $blogpost->day, $blogpost->slug],
+        'class'     => 'form-horizontal',
+        'role'      =>  'form',
+        'method'    => 'patch'
+        ]) }}
     @if(Session::has('messages'))
         @foreach(Session::get('messages') as $message)
-            {{ $message }}
+            <p class="text-danger">{{ $message }}</p>
         @endforeach
     @endif
     <div class="form-group">

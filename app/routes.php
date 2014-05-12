@@ -11,14 +11,20 @@
 |
 */
 
-
 Route::group(array('prefix' => '/'), function()
 {
 	Route::get('/', 'HomeController@index');
-	Route::get('post/{year}/{month}/{day}/{slug}', 'HomeController@show');
+	Route::get('post/{year}/{month}/{day}/{slug}', array(
+		'as' => 'home.show',
+		'uses' => 'HomeController@show'
+	));
 
 	Route::group(array('prefix' => 'admin'), function()
 	{
+		Route::get('/', array(
+			'as' => 'admin.index',
+			'uses' => 'AdminController@index'
+		));
 		Route::get('login', array(
 			'as' => 'admin.login',
 			'uses' => 'AdminController@login'
@@ -30,33 +36,11 @@ Route::group(array('prefix' => '/'), function()
 	});
 });
 
-Route::group(array('prefix' => '/', 'before' => 'auth'), function()
+Route::group(array('prefix' => '/', 'before' => array('auth')), function()
 {
-	Route::get('new', array(
-		'as' => 'home.new',
-		'uses' => 'HomeController@create'
-	));
-
-	Route::patch('verify', array(
-		'as' => 'home.store',
-		'uses' => 'HomeController@store'
-	));
-
-	Route::post('verify', 'HomeController@postVerify');
-	
-	Route::get('post/{slug}/delete', array(
-		'as' => 'home.destroy',
-		'uses' => 'HomeController@destroy'
-	));
-
-	Route::get('post/{slug}/edit', array(
-		'as' => 'home.show',
-		'uses' => 'HomeController@edit'
-	));
-
-	Route::patch('post/{slug}/edit', array(
-		'as' => 'home.update',
-		'uses' => 'HomeController@update'
+	Route::patch('post/comment', array(
+		'as' => 'comment.store',
+		'uses' => 'CommentController@store'
 	));
 
 	Route::group(array('prefix' => 'admin'), function()
@@ -66,6 +50,42 @@ Route::group(array('prefix' => '/', 'before' => 'auth'), function()
 			'uses' => 'AdminController@logout'
 		));
 	});
+
+	Route::group(array('before' => array('admin')), function()
+	{
+		Route::get('post/new', array(
+			'as' => 'home.new',
+			'uses' => 'HomeController@create'
+		));
+
+		Route::patch('post/verify', array(
+			'as' => 'home.store',
+			'uses' => 'HomeController@store'
+		));
+		
+		Route::delete('post/{year}/{month}/{day}/{slug}', array(
+			'as' => 'home.destroy',
+			'uses' => 'HomeController@destroy'
+		));
+
+		Route::get('post/{year}/{month}/{day}/{slug}/edit', array(
+			'as' => 'home.edit',
+			'uses' => 'HomeController@edit'
+		));
+
+		Route::patch('post/{year}/{month}/{day}/{slug}/edit', array(
+			'as' => 'home.update',
+			'uses' => 'HomeController@update'
+		));
+
+		Route::delete('post/comment/delete/{id}', array(
+			'as' => 'comment.destroy',
+			'uses' => 'CommentController@destroy'
+		));
+	});
+	
+
+	
 });
 
 Route::group(array('prefix' => 'users'), function()

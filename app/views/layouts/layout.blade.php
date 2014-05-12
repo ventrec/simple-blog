@@ -17,12 +17,7 @@
 <nav class="navbar navbar-default navbar-static-top" role="navigation">
     <div class="container">
         <ul class="nav navbar-nav">
-            <li class="active"><a href="{{ action('HomeController@index') }}">Home</a></li>
-            @if(!Auth::check())
-                <li><a href="{{ action('AdminController@login') }}">Log in</a></li>
-            @else
-                <li><a href="{{ action('AdminController@logout') }}">Log out</a></li>
-            @endif
+            @include('menu.blade.php')
         </ul>
     </div>
 </nav>

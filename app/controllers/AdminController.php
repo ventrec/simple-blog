@@ -22,7 +22,7 @@ class AdminController extends BaseController {
     public function login() {
         if(!Auth::check()) {
             $blogPosts = Blogpost::orderBy('id', 'desc')->limit(10)->get();
-            return View::make('admin.login')->with('blogposts', $blogPosts);
+            return View::make('admin.login')->with('blogposts', Blogpost::LatestPosts()->get());
         } else {
             return Redirect::to('/');
         }
@@ -30,7 +30,7 @@ class AdminController extends BaseController {
     }
 
     /**
-     * Logges out the user and redirects to the frontpage
+     * Loggs out the user and redirects to the frontpage
      *
      * @return mixed
      */

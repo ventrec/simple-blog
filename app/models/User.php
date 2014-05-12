@@ -39,6 +39,16 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
      */
     protected $hidden = array('password');
 
+    public function comments()
+    {
+        return $this->hasMany('Comment');
+    }
+
+    public function blogposts()
+    {
+        return $this->hasMany('Blogpost');
+    }
+
     /**
      * Get the unique identifier for the user.
      *
@@ -100,4 +110,10 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
         return 'remember_token';
     }
 
+    public function isAdmin()
+    {
+        if($this->access_level >= 10) return true;
+
+        return false;
+    }
 }

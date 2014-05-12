@@ -27,33 +27,24 @@ class HomeController extends BaseController {
         return View::make('blogposts.home')->with('blogposts', $blogPosts);
     }
 
-    /**
-     * Displays a single blog post
-     *
-     * @param $id Id of the blog post
-     * @return mixed
-     */
     public function show($year, $month, $day, $slug) 
     {     
-        try {
-            //AND DATE_FORMAT(created_at, \'%Y.%m.%d\') = ?
-            $format = $year . '.' . $month . '.' . $day;
-            $blogPost = Blogpost::whereRaw('slug = ? AND DATE_FORMAT(created_at, \'%Y.%m.%d\') = ?', array($slug, $format))->firstOrFail();
-            // $blogPost = Blogpost::where('slug', '=', $slug)->firstOrFail();
-
-            if ( ($year !== $blogPost->created_at->format('Y')) OR ($month !== $blogPost->created_at->format('m')) OR ($day !== $blogPost->created_at->format('d')) )
-            {
-                return Redirect::to('/');
-            }
-
-        } catch (Exception $e) {
+        try 
+        {
+            // $blogPost = Blogpost::retrievePost($year, $month, $day, $slug);
+            $blogPost = Blogpost::PostBySlugAndDate($year, $month, $day, $slug)->firstOrFail();
+        }
+        catch(Exception $e)
+        {
             return Redirect::to('/');
         }
 
-        $blogPosts = Blogpost::orderBy('id', 'desc')->limit(10)->get();
-        $comments = $blogPost->comments()->get();
-
-        return View::make('blogposts.blogpost')->with(array('blogpost' => $blogPost, 'blogposts' => $blogPosts, 'comments' => $comments));
+        return View::make('blogposts.blogpost')->with(
+        array(
+            'blogpost' => $blogPost, 
+            'blogposts' => Blogpost::LatestPosts()->get(), 
+            'comments' => $blogPost->comments()->get()
+        ));
     }
 
     /**
@@ -63,9 +54,7 @@ class HomeController extends BaseController {
      */
     public function create() 
     {
-        $blogPosts = Blogpost::orderBy('id', 'desc')->limit(10)->get();
-
-        return View::make('blogposts.new')->with('blogposts', $blogPosts);
+        return View::make('blogposts.new')->with('blogposts', Blogpost::LatestPosts()->get());
     }
 
     /**
@@ -90,21 +79,26 @@ class HomeController extends BaseController {
         } 
         else 
         {
-            return Redirect::to('/new')
+            return Redirect::to('/post/new')
                 ->with('messages', $validator->messages()->all())
                 ->withInput();
         }
     }
 
-    /**
-     * Deletes a blog post from the database
-     *
-     * @param $id Id related to the blog post
-     * @return mixed
-     */
-    public function destroy($slug) 
+    public function destroy($year, $month, $day, $slug) 
     {
-        if(Auth::check()) Blogpost::destroy($slug);
+        if(Auth::check())
+        {
+            try 
+            {
+                $blogPost = Blogpost::PostBySlugAndDate($year, $month, $day, $slug)->firstOrFail();
+                $blogPost->delete();
+            }
+            catch(Exception $e)
+            {
+                return Redirect::to('/');
+            }
+        }
 
         return Redirect::to('/');
     }
@@ -115,14 +109,20 @@ class HomeController extends BaseController {
      * @param $id Id related to the blog post
      * @return mixed
      */
-    public function edit($slug) 
+    public function edit($year, $month, $day, $slug) 
     {
         if(Auth::check()) 
         {
-            $blogPosts = Blogpost::orderBy('id', 'desc')->limit(10)->get();
-            $blogPost = Blogpost::find($id);
+            try 
+            {
+                $blogPost = Blogpost::PostBySlugAndDate($year, $month, $day, $slug)->firstOrFail();
+            }
+            catch(Exception $e)
+            {
+                return Redirect::to('/');
+            }
 
-            return View::make('blogposts.edit')->with(array('blogposts' => $blogPosts, 'blogpost' => $blogPost));
+            return View::make('blogposts.edit')->with(array('blogposts' => Blogpost::LatestPosts()->get(), 'blogpost' => $blogPost));
         } 
         else 
         {
@@ -136,13 +136,20 @@ class HomeController extends BaseController {
      * @param $id Id related to the blog post
      * @return mixed
      */
-    public function update($id) 
+    public function update($year, $month, $day, $slug) 
     {
         $validator = Validator::make(Input::all(), Blogpost::$rules);
 
         if($validator->passes()) 
         {
-            $blogpost = Blogpost::find($id);
+            try 
+            {
+                $blogpost = Blogpost::PostBySlugAndDate($year, $month, $day, $slug)->firstOrFail();
+            }
+            catch(Exception $e)
+            {
+                return Redirect::to('/');
+            }
             $blogpost->title = Input::get('title');
             $blogpost->slug = Str::slug(Input::get('title'), '_');
             $blogpost->text = Input::get('text');
@@ -152,7 +159,7 @@ class HomeController extends BaseController {
         } 
         else 
         {
-            return Redirect::to('blogposts.edit')
+            return Redirect::route('home.edit', array($year, $month, $day, $slug))
                 ->with('messages', $validator->messages()->all())
                 ->withInput();
         }

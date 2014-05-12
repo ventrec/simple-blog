@@ -16,7 +16,7 @@ class Blogpost extends Eloquent {
     //         $blogPost = blogpost::where('slug', '=', $slug)->findOrFail();
     //         // $blogPost = Blogpost::whereRaw('slug = ?', array($slug))->findOrFail();
 
-    protected $appends = array('link');
+    protected $appends = array('link', 'year', 'month', 'day');
 
     /**
      * Retrieves the user object associated with the post
@@ -35,23 +35,48 @@ class Blogpost extends Eloquent {
 
     public function getLinkAttribute() 
     {
-        return date('Y/m/d', strtotime($this->attributes['created_at'])) .'/'. $this->attributes['slug'];
+        return date('Y/m/d', strtotime($this->created_at)) .'/'. $this->slug;
     }
 
-    public function verifyLink($year, $month, $day, $slug)
+    public function getYearAttribute()
     {
-        try {
-            $format = $year . '.' . $month . '.' . $day;
-            $blogPost = Blogpost::whereRaw('slug = ? AND DATE_FORMAT(created_at, \'%Y.%m.%d\') = ?', array($slug, $format))->firstOrFail();
-            // $blogPost = Blogpost::where('slug', '=', $slug)->firstOrFail();
+        return date('Y', strtotime($this->created_at));
+    }
 
-            if ( ($year !== $blogPost->created_at->format('Y')) OR ($month !== $blogPost->created_at->format('m')) OR ($day !== $blogPost->created_at->format('d')) )
-            {
-                return Redirect::to('/');
-            }
+    public function getMonthAttribute()
+    {
+        return date('m', strtotime($this->created_at));
+    }
 
-        } catch (Exception $e) {
-            return Redirect::to('/');
-        }
+    public function getDayAttribute()
+    {
+        return date('d', strtotime($this->created_at));
+    }
+
+    /**
+     * Retrieves a post if the date and slug matches a post in the database
+     * 
+     * @param  [type] $query [description]
+     * @param  [int] $year  [description]
+     * @param  [int] $month [description]
+     * @param  [int] $day   [description]
+     * @param  [string] $slug  [description]
+     * @return [type]        [description]
+     */
+    public function scopePostBySlugAndDate($query, $year, $month, $day, $slug)
+    {
+        $format = $year .'.'. $month .'.'. $day;
+
+        return $query->whereRaw('slug = ? AND DATE_FORMAT(created_at, \'%Y.%m.%d\') = ?', array($slug, $format));
+    }
+
+    /**
+     * Retrieves the 10 latest blog posts order by date descending 
+     * @param  [type] $query [description]
+     * @return [type]        [description]
+     */
+    public function scopeLatestPosts($query)
+    {
+        return $query->orderBy('id', 'desc')->limit(10);
     }
 }

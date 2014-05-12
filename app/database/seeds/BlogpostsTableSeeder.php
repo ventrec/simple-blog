@@ -16,7 +16,7 @@ class BlogpostsTableSeeder extends Seeder {
 			Blogpost::create([
 				'title' => $title,
 				'slug' => Str::slug($title, '_'),
-				'text' => $faker->text,
+				'text' => '<p>'. $faker->text .'</p>',
 				'user_id' => rand(1,10)
 			]);
 		}

@@ -10,7 +10,7 @@
         @endif
     </ul>
 </div>
-@if(Auth::check())
+@if(Auth::check() AND Auth::user()->isAdmin())
     <div class="sidebar-module">
         <h4>Logged in</h4>
         <ul>

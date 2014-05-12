@@ -13,14 +13,22 @@ class UsersTableSeeder extends Seeder {
 		{
 			User::create([
 				'username' => $faker->firstName,
-				'password' => Hash::make($faker->word)
+				'password' => Hash::make($faker->word),
+				'access_level' => 0
 			]);
 		}
 
 		User::create([
 			'username' => 'admin',
-			'password' => Hash::make('admin')
+			'password' => Hash::make('admin'),
+			'access_level' => 10
 			]);
+
+		User::create([
+			'username' => 'user',
+			'password' => Hash::make('user'),
+			'access_level' => 1
+		]);
 	}
 
 }
